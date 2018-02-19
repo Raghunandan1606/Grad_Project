@@ -6,7 +6,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class User {
 	private long id;
 	private String userId;
-	private String accessToken;
+	private String password;
+	private int securityQuestion;
+	private String securityAnswer;
 
 	public User() {
 		// TODO Auto-generated constructor stub
@@ -15,7 +17,7 @@ public class User {
 	public User(long id, String userId, String accessToken) {
 		this.id = id;
 		this.userId = userId;
-		this.accessToken = accessToken;
+		this.password = accessToken;
 	}
 
 	public long getId() {
@@ -34,12 +36,28 @@ public class User {
 		this.userId = userId;
 	}
 
-	public String getAccessToken() {
-		return accessToken;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public int getSecurityQuestion() {
+		return securityQuestion;
+	}
+
+	public void setSecurityQuestion(int securityQuestion) {
+		this.securityQuestion = securityQuestion;
+	}
+
+	public String getSecurityAnswer() {
+		return securityAnswer;
+	}
+
+	public void setSecurityAnswer(String securityAnswer) {
+		this.securityAnswer = securityAnswer;
 	}
 
 }
