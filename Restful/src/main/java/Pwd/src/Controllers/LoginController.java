@@ -27,7 +27,7 @@ public class LoginController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response loginUser(@PathParam("userId") String userId) {
 		System.out.println(userId);
-		List<Field> userFields = userService.getAllFields(userId);
+		//YET TO BE DONE: TODO: List<Field> userFields = userService.getAllFields(userId);
 		return Response.ok(userFields).build();
 	}
 
