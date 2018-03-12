@@ -4,39 +4,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 
+import Pwd.src.Cryptographic_Functions.SHA;
 import Pwd.src.Models.Field;
 
 public class MongoDBConnect {
 	static MongoClient mongo = new MongoClient("localhost", 27017);
+	private static MongoDatabase mongoDatabase;
 
-	public static MongoDatabase ConnectDB(int userType, String collectionName) {
+	public MongoDBConnect() {
+		mongoDatabase = mongo.getDatabase(Constants_PWD.database);
+	}
 
-		// Creating a Mongo client
-		// userType==1: Admin
-		// userType==2: User
-		// Creating Credentials
-		/*
-		 * MongoCredential credential; credential =
-		 * MongoCredential.createCredential("sampleUser", "myDb",
-		 * "password".toCharArray());
-		 */
-		String database = "";
-		System.out.println("Connected to the database successfully");
-
-		// Accessing the database
-		if (userType == 2 || userType == 1)
-			database = "PasswordWallet";
-		else
-			return null;
-		MongoDatabase mongoDatabase = mongo.getDatabase(database);
-		// System.out.println(mongoDatabase.getCollection("testUser"));
+	public static MongoDatabase getMongoDatabase() {
 		return mongoDatabase;
 	}
 
@@ -45,7 +37,7 @@ public class MongoDBConnect {
 	}
 
 	public static void main(String[] args) {
-		MongoDatabase mongoDatabase = ConnectDB(2, "testuser");
+		MongoDatabase mongoDatabase = getMongoDatabase();
 		MongoCollection<Document> collection = mongoDatabase.getCollection("testuser");
 		List<Field> userFields = new ArrayList<Field>();
 		MongoCursor<Document> cursor = collection.find().iterator();

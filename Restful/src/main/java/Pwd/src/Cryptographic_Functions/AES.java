@@ -1,4 +1,4 @@
-package Pwd.src.Restful;
+package Pwd.src.Cryptographic_Functions;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -9,10 +9,12 @@ import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import Pwd.src.DBConnect.Constants_PWD;
+
 public class AES {
 
-	private static SecretKeySpec secretKey;
 	private static byte[] key;
+	static SecretKeySpec secretKey;
 
 	public static void setKey(String myKey) {
 		MessageDigest sha = null;
@@ -54,9 +56,9 @@ public class AES {
 	}
 
 	public static void main(String[] args) {
-		final String secretKey = "ssshhhhhhhhhhh!!!!";
-
-		String originalString = "howtodoinjava.com";
+		final String secretKey = Constants_PWD.secretKey;
+		String passwordHashed = "H3968+uduYWjg0elEW2C3sdGIuKH7y4rrAj0ZyohgWI=";
+		String originalString = "testuser3:" + passwordHashed;
 		String encryptedString = AES.encrypt(originalString, secretKey);
 		String decryptedString = AES.decrypt(encryptedString, secretKey);
 

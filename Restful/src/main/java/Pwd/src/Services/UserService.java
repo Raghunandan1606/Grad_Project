@@ -17,16 +17,21 @@ import com.sun.research.ws.wadl.Doc;
 
 import Pwd.src.DBConnect.MongoDBConnect;
 import Pwd.src.Models.Field;
-import Pwd.src.Restful.AES;
+import Pwd.src.Cryptographic_Functions.AES;
 
 public class UserService {
-	// SecretKey==Firstfourlettersofusername++PasswordFieldId(firstfourletters)
-	private MongoDBConnect mongoDBConnect = new MongoDBConnect();
+	private static MongoDBConnect mongoDBConnect;
+	private static MongoDatabase mongoDatabase;
+
+	public UserService() {
+		mongoDBConnect = new MongoDBConnect();
+		mongoDatabase = mongoDBConnect.getMongoDatabase();
+	}
+
 	private int userType = 2;
 
 	public List<Field> getAllFields(String userId) {
 		// TODO Auto-generated method stub
-		MongoDatabase mongoDatabase = mongoDBConnect.ConnectDB(userType, userId);
 		MongoCollection<Document> collection = mongoDatabase.getCollection(userId);
 		List<Field> userFields = new ArrayList<Field>();
 		MongoCursor<Document> cursor = collection.find().iterator();
@@ -53,7 +58,6 @@ public class UserService {
 	public boolean addField(String userId, Field userField) {
 
 		try {
-			MongoDatabase mongoDatabase = mongoDBConnect.ConnectDB(userType, userId);
 			MongoCollection<Document> collection = mongoDatabase.getCollection(userId);
 			// String encryptedString = AES.encrypt(originalString, secretKey);
 			String secretKey = userId.substring(0, 4) + userField.getFieldId().substring(0, 4);
@@ -80,7 +84,6 @@ public class UserService {
 
 	public List<Field> modifyField(String userId, Field userField) {
 		try {
-			MongoDatabase mongoDatabase = mongoDBConnect.ConnectDB(userType, userId);
 			MongoCollection<Document> collection = mongoDatabase.getCollection(userId);
 			BasicDBObject fields = new BasicDBObject();
 			BasicDBObject allQuery = new BasicDBObject();
@@ -105,7 +108,6 @@ public class UserService {
 
 	public boolean deleteField(String userId, Field userField) {
 		try {
-			MongoDatabase mongoDatabase = mongoDBConnect.ConnectDB(userType, userId);
 			MongoCollection<Document> collection = mongoDatabase.getCollection(userId);
 			BasicDBObject filter = new BasicDBObject();
 			filter.put("fieldId", userField.getFieldId());

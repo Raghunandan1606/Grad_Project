@@ -25,6 +25,7 @@ public class UserController {
 		return "gotttt";
 	}
 	// http://localhost:8080/Restful/webapi/user/testuser/GetFields
+	
 	@Path("/{userId}/GetFields")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
