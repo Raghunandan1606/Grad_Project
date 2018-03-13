@@ -29,11 +29,7 @@ public class JWTAuthenticateService {
 			Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 			String jwt = Jwts.builder().setSubject("users/TzMUocMF4p").setExpiration(date)
 					.claim(userId, Constants_PWD.TokenSystem).claim("scope", "self groups/admins")
-					.signWith(SignatureAlgorithm.HS256, Constants_PWD.jwtSecretKey.getBytes("UTF-8")).compact();
-			// eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2Vycy9Uek1Vb2NNRjRwIiwiZXhwIjoxNTIwNDg1MjAwLCJuYW1lIjoiUm9iZXJ0IFRva2VuIE1hbiIsInNjb3BlIjoic2VsZiBncm91cHMvYWRtaW5zIn0.dRzfuyTDmA9ZOY_2-QRrlsI2KgWIAGMTWjpC1jl6mJw
-			// boolean isTrue = validateJWT(jwt);
-			// System.out.println("Finished JWT:" + jwt);
-			// if (isTrue)
+					.signWith(SignatureAlgorithm.HS256, (Constants_PWD.jwtSecretKey+userId).getBytes("UTF-8")).compact();
 			return jwt.toString();
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -41,12 +37,12 @@ public class JWTAuthenticateService {
 		}
 	}
 
-	public static boolean validateJWT(String res) {
+	public static boolean validateJWT(String res, String userId) {
 		String jwt = res;
 		Jws<Claims> claims;
 		try {
 			System.out.println("Validating");
-			claims = Jwts.parser().setSigningKey(Constants_PWD.jwtSecretKey.getBytes("UTF-8")).parseClaimsJws(jwt);
+			claims = Jwts.parser().setSigningKey((Constants_PWD.jwtSecretKey+userId).getBytes("UTF-8")).parseClaimsJws(jwt);
 			System.out.println("Succesfully validated");
 			return true;
 		} catch (ExpiredJwtException e) {

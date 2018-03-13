@@ -58,7 +58,7 @@ public class AES {
 	public static void main(String[] args) {
 		final String secretKey = Constants_PWD.secretKey;
 		String passwordHashed = "H3968+uduYWjg0elEW2C3sdGIuKH7y4rrAj0ZyohgWI=";
-		String originalString = "testuser3:" + passwordHashed;
+		String originalString = "testuser1:" + passwordHashed;
 		String encryptedString = AES.encrypt(originalString, secretKey);
 		String decryptedString = AES.decrypt(encryptedString, secretKey);
 

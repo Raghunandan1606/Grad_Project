@@ -7,17 +7,16 @@ import org.bson.Document;
 
 import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.sun.research.ws.wadl.Doc;
 
+import Pwd.src.Cryptographic_Functions.AES;
+import Pwd.src.DBConnect.Constants_PWD;
 import Pwd.src.DBConnect.MongoDBConnect;
 import Pwd.src.Models.Field;
-import Pwd.src.Cryptographic_Functions.AES;
 
 public class UserService {
 	private static MongoDBConnect mongoDBConnect;
@@ -39,10 +38,10 @@ public class UserService {
 			while (cursor.hasNext()) {
 				Document document = cursor.next();
 				Field field = new Field();
-				field.setFieldId(document.getString("fieldId"));
-				field.setFieldDecrypted(AES.decrypt(document.getString("fieldEncrypted"),
+				field.setFieldId(document.getString(Constants_PWD.fieldId));
+				field.setFieldDecrypted(AES.decrypt(document.getString(Constants_PWD.fieldEncrypted),
 						userId.substring(0, 4) + field.getFieldId().substring(0, 4)));
-				field.setFieldName(document.getString("fieldName"));
+				field.setFieldName(document.getString(Constants_PWD.fieldName));
 				userFields.add(field);
 			}
 			return userFields;
@@ -55,7 +54,7 @@ public class UserService {
 
 	}
 
-	public boolean addField(String userId, Field userField) {
+	public boolean addField(String userId, Field userField) throws Exception {
 
 		try {
 			MongoCollection<Document> collection = mongoDatabase.getCollection(userId);
@@ -72,11 +71,12 @@ public class UserService {
 			return true;
 		} catch (MongoWriteException mx) {
 			System.out.println("Duplicate FieldId's cannot exist. Please change FieldId");
-			return false;
+			throw mx;
+			// return false;
 		} catch (Exception ex) {
 			System.out.println("Exception while adding Field in userService." + ex.toString());
 			ex.printStackTrace();
-			return false;
+			throw ex;
 		} finally {
 		}
 
@@ -88,15 +88,15 @@ public class UserService {
 			BasicDBObject fields = new BasicDBObject();
 			BasicDBObject allQuery = new BasicDBObject();
 			System.out.println(userField.getFieldId());
-			fields.put("fieldId", userField.getFieldId());
+			fields.put(Constants_PWD.fieldId, userField.getFieldId());
 			FindIterable<Document> document = collection.find(fields);
 			MongoCursor<Document> cursor = document.iterator();
 			while (cursor.hasNext()) {
 				Document doc = cursor.next();
-				String secretKey = userId.substring(0, 4) + ((String) doc.get("fieldId")).substring(0, 4);
+				String secretKey = userId.substring(0, 4) + ((String) doc.get(Constants_PWD.fieldId)).substring(0, 4);
 				String newEncryptedString = AES.encrypt(userField.getFieldDecrypted(), secretKey);
 				BasicDBObject update = new BasicDBObject();
-				update.append("$set", new BasicDBObject().append("fieldEncrypted", newEncryptedString));
+				update.append("$set", new BasicDBObject().append(Constants_PWD.fieldEncrypted, newEncryptedString));
 				collection.updateOne(fields, update);
 			}
 			return getAllFields(userId);
@@ -110,7 +110,7 @@ public class UserService {
 		try {
 			MongoCollection<Document> collection = mongoDatabase.getCollection(userId);
 			BasicDBObject filter = new BasicDBObject();
-			filter.put("fieldId", userField.getFieldId());
+			filter.put(Constants_PWD.fieldId, userField.getFieldId());
 			collection.deleteOne(filter);
 			System.out.println("Deleted as directed");
 		} catch (Exception ex) {

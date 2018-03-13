@@ -17,6 +17,6 @@ public class SHA {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(getEncryptedPassword("highjack@1"));
+		System.out.println(getEncryptedPassword("The quick brown fox jumps over the lazy dog"));
 	}
 }

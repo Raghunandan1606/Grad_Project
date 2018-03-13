@@ -26,15 +26,10 @@ public class LoginService {
 	public static String userAuthenticate(String userInput) {
 		boolean validUser = false;
 		try {
-			// rbYQalHxi70VCuJn4WzqwH2aEC/X/cQiY+YnuYsmIwtBsa/WfkXSAIracCsiriADEDY89sigrpqU+rb/ZgQ+Jw==
-			// userId:SHA(PWD)
 			String inputCredentials = AES.decrypt(userInput, Constants_PWD.secretKey);
 			userId = inputCredentials.substring(0, inputCredentials.indexOf(":"));
 			final String password = inputCredentials.substring(inputCredentials.indexOf(":") + 1);// Hashed//SHA-256
 			System.out.println(userId + ":" + password);
-			// H3968+uduYWjg0elEW2C3sdGIuKH7y4rrAj0ZyohgWI=
-			// >db.mycol.update({'title':'MongoDB Overview'},{$set:{'title':'New MongoDB
-			// Tutorial'}})
 			validUser = checkUser(userId, password);
 		} catch (StringIndexOutOfBoundsException e) {
 			System.out.println(e.getMessage());
@@ -87,11 +82,13 @@ public class LoginService {
 			Bson filter = Filters.eq("userId", userId);
 			Document dbObj = null;
 			dbObj = collection.find(filter).first();
-			if (dbObj==null) {
+			if (dbObj == null) {
 				collection.insertOne(doc);
+				mongoDatabase.createCollection(userId);
 				createdUser = true;
 			} else {
-				throw new Exception("User Name already exists in the Table. Change userName. In->LoginService->createUser");
+				throw new Exception(
+						"User Name already exists in the Table. Change userName. In->LoginService->createUser");
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();

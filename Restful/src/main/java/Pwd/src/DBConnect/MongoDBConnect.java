@@ -45,12 +45,12 @@ public class MongoDBConnect {
 			while (cursor.hasNext()) {
 				Document document = cursor.next();
 				Field field = new Field();
-				System.out.println(document.getString("fieldId"));
-				System.out.println(document.getString("fieldEncrypted"));
-				System.out.println(document.getString("fieldName"));
-				field.setFieldId(document.getString("fieldId").toString());
-				field.setFieldEncrypted(document.getString("fieldEncrypted"));
-				field.setFieldName(document.getString("fieldName"));
+				System.out.println(document.getString(Constants_PWD.fieldId));
+				System.out.println(document.getString(Constants_PWD.fieldEncrypted));
+				System.out.println(document.getString(Constants_PWD.fieldName));
+				field.setFieldId(document.getString(Constants_PWD.fieldId).toString());
+				field.setFieldEncrypted(document.getString(Constants_PWD.fieldEncrypted));
+				field.setFieldName(document.getString(Constants_PWD.fieldName));
 				userFields.add(field);
 			}
 		} finally {
