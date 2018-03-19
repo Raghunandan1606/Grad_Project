@@ -1,7 +1,7 @@
 package Pwd.src.Models;
 
 import javax.xml.bind.annotation.XmlElement;
-
+//Field POJO
 public class Field {
 	@XmlElement
 	private String fieldId;
