@@ -57,11 +57,11 @@ public class AES {
 
 	public static void main(String[] args) {
 		final String secretKey = Constants_PWD.secretKey;
-		String passwordHashed = "H3968+uduYWjg0elEW2C3sdGIuKH7y4rrAj0ZyohgWI=";
-		String originalString = "testuser1:" + passwordHashed;
+		String passwordHashed = "YC/PwzC+regTBz0e6xWb7Q=="; //plainText=password
+		String originalString = "demoUserAngular:" + passwordHashed;
 		String encryptedString = AES.encrypt(originalString, secretKey);
 		String decryptedString = AES.decrypt(encryptedString, secretKey);
-
+//m0KIiYHy7b4A0IoyLnF88J0+avoXibdNKkG0WH3a2qwc6D3sgTKiwEh2iUBRpw6F
 		System.out.println(originalString);
 		System.out.println(encryptedString);
 		System.out.println(decryptedString);

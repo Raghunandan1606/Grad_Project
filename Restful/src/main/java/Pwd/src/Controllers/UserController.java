@@ -15,6 +15,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.json.JSONObject;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.mongodb.MongoWriteException;
 
 import Pwd.src.DBConnect.Constants_PWD;
@@ -43,9 +47,13 @@ public class UserController {
 		if (JWTAuthenticateService.validateJWT(jwtToken, userId)) {
 			System.out.println(userId);
 			List<Field> userFields = userService.getAllFields(userId);
-			GenericEntity<List<Field>> entity = new GenericEntity<List<Field>>(userFields) {
-			};
-			Response response = Response.ok(entity).build();
+			// GenericEntity<List<Field>> entity = new
+			// GenericEntity<List<Field>>(userFields) {
+			// };
+			Gson gson = new Gson();
+			String jsonCartList = gson.toJson(userFields);
+			System.out.println(jsonCartList);
+			Response response = Response.ok(jsonCartList).build();
 			return response;// Response.status(200).entity(userFields).build();
 		} else {
 			return Response.status(400).build();
@@ -58,9 +66,14 @@ public class UserController {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addField(@HeaderParam(Constants_PWD.jwtToken) String jwtToken,
-			@PathParam(Constants_PWD.userId) String userId, Field userField) throws MongoWriteException, Exception {
+			@PathParam(Constants_PWD.userId) String userId, String bodystring) throws MongoWriteException, Exception {
 		Response response = null;
 		try {
+			Field userField = new Field();
+			JSONObject jsonObject = new JSONObject(bodystring);
+			userField.setFieldId(jsonObject.get("fieldId").toString());
+			userField.setFieldName(jsonObject.get("fieldName").toString());
+			userField.setFieldDecrypted(jsonObject.get("passwordDecrypted").toString());
 			if (JWTAuthenticateService.validateJWT(jwtToken, userId)) {
 				if (userService.addField(userId, userField)) {
 					response = Response.ok(true).build();
@@ -77,7 +90,6 @@ public class UserController {
 		} finally {
 			return response;
 		}
-
 	}
 
 	@Path("/{userId}/modifyField")
@@ -85,18 +97,24 @@ public class UserController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response modifyField(@HeaderParam(Constants_PWD.jwtToken) String jwtToken,
-			@PathParam(Constants_PWD.userId) String userId, Field userField) throws Exception {
+			@PathParam(Constants_PWD.userId) String userId, String userField) throws Exception {
 		Response response = null;
 		try {
-			if (JWTAuthenticateService.validateJWT(jwtToken, userId)) {
-				List<Field> userFields = userService.modifyField(userId, userField);
-				GenericEntity<List<Field>> entity = new GenericEntity<List<Field>>(userFields) {
-				};
-				response = Response.ok(entity).build();
-				return response;
-			} else {
-				return Response.status(400).build();
-			}
+			System.out.println("--------In Modify Field--------");
+			System.out.println("JWT:" + jwtToken);
+			System.out.println("userId:" + userId);
+			System.out.println("Body:" + userField);
+			// if (JWTAuthenticateService.validateJWT(jwtToken, userId)) {
+			// List<Field> userFields = userService.modifyField(userId, userField);
+			// GenericEntity<List<Field>> entity = new
+			// GenericEntity<List<Field>>(userFields) {
+			// };
+			// response = Response.ok(entity).build();
+
+			return response;
+			// } else {
+			// return Response.status(400).build();
+			// }
 		} catch (Exception ex) {
 			response = Response.status(Status.BAD_REQUEST).build();
 			return response;
@@ -109,7 +127,11 @@ public class UserController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public boolean deleteField(@HeaderParam(Constants_PWD.jwtToken) String jwtToken,
-			@PathParam(Constants_PWD.userId) String userId, Field userField) {
-		return userService.deleteField(userId, userField);
+			@PathParam(Constants_PWD.userId) String userId, String userField) {
+		System.out.println("--------In Delete Field--------");
+		System.out.println("JWT:" + jwtToken);
+		System.out.println("userId:" + userId);
+		System.out.println("Body:" + userField);
+		return true;//userService.deleteField(userId, userField);
 	}
 }

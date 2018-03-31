@@ -27,6 +27,7 @@ public class JWTAuthenticateService {
 		try {
 			LocalDate localDate = LocalDate.now().plusDays(1);
 			Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			System.out.println("JWT GENERATED WITH UID:"+userId);
 			String jwt = Jwts.builder().setSubject("users/TzMUocMF4p").setExpiration(date)
 					.claim(userId, Constants_PWD.TokenSystem).claim("scope", "self groups/admins")
 					.signWith(SignatureAlgorithm.HS256, (Constants_PWD.jwtSecretKey+userId).getBytes("UTF-8")).compact();
