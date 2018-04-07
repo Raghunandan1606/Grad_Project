@@ -36,6 +36,7 @@ public class AES {
 			setKey(secret);
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+			System.out.println(secretKey.getAlgorithm());
 			return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
 		} catch (Exception e) {
 			System.out.println("Error while encrypting: " + e.toString());
@@ -57,11 +58,11 @@ public class AES {
 
 	public static void main(String[] args) {
 		final String secretKey = Constants_PWD.secretKey;
-		String passwordHashed = "YC/PwzC+regTBz0e6xWb7Q=="; //plainText=password
-		String originalString = "demoUserAngular:" + passwordHashed;
+		String passwordHashed = "YC/PwzC+regTBz0e6xWb7Q=="; // plainText=password
+		String originalString = "demoUserAngular1:" + passwordHashed;
 		String encryptedString = AES.encrypt(originalString, secretKey);
 		String decryptedString = AES.decrypt(encryptedString, secretKey);
-//m0KIiYHy7b4A0IoyLnF88J0+avoXibdNKkG0WH3a2qwc6D3sgTKiwEh2iUBRpw6F
+		// m0KIiYHy7b4A0IoyLnF88J0+avoXibdNKkG0WH3a2qwc6D3sgTKiwEh2iUBRpw6F
 		System.out.println(originalString);
 		System.out.println(encryptedString);
 		System.out.println(decryptedString);

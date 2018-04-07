@@ -3,13 +3,16 @@ package Pwd.src.Services;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
 
 import Pwd.src.Cryptographic_Functions.AES;
-import Pwd.src.DBConnect.*;
+import Pwd.src.Cryptographic_Functions.SHA;
+import Pwd.src.Cryptographic_Functions.SimpleAES;
+import Pwd.src.DBConnect.Constants_PWD;
+import Pwd.src.DBConnect.MongoDBConnect;
 import Pwd.src.Exceptions.UserNotFoundException;
 
 public class LoginService {
@@ -26,9 +29,12 @@ public class LoginService {
 	public static String userAuthenticate(String userInput) {
 		boolean validUser = false;
 		try {
-			String inputCredentials = AES.decrypt(userInput, Constants_PWD.secretKey);
+			String inputCredentials = SimpleAES.decrypt(userInput, Constants_PWD.secretKey);
 			userId = inputCredentials.substring(0, inputCredentials.indexOf(":"));
-			final String password = inputCredentials.substring(inputCredentials.indexOf(":") + 1);// Hashed//SHA-256
+			String password = inputCredentials.substring(inputCredentials.indexOf(":") + 1);// Hashed//SHA-256
+			password = password.substring(0, password.length() - 6);
+			System.out.println("PLAIN PASSWORD:"+password);
+			password = SHA.getHashedPassword(password);
 			System.out.println(userId + ":" + password);
 			validUser = checkUser(userId, password);
 		} catch (StringIndexOutOfBoundsException e) {
@@ -74,9 +80,14 @@ public class LoginService {
 	public boolean createUser(String userInput) {
 		boolean createdUser = false;
 		MongoCollection<Document> collection = mongoDatabase.getCollection(Constants_PWD.mainCollection);
-		String inputCredentials = AES.decrypt(userInput, Constants_PWD.secretKey);
+		String inputCredentials = SimpleAES.decrypt(userInput, Constants_PWD.secretKey);
+		// AES(userId:Password) with secret key 'ssshhhhhhhhhhh!!!!'
+		System.out.println("INPUT IS:" + inputCredentials);
 		userId = inputCredentials.substring(0, inputCredentials.indexOf(":"));
-		final String password = inputCredentials.substring(inputCredentials.indexOf(":") + 1);// Hashed//SHA-256
+		String password = inputCredentials.substring(inputCredentials.indexOf(":") + 1);// Hashed//SHA-256
+		password = password.substring(0, password.length() - 6);
+		System.out.println("Password after decryptign is:" + password);
+		password = SHA.getHashedPassword(password);
 		Document doc = new Document("userId", userId).append("password", password);
 		try {
 			Bson filter = Filters.eq("userId", userId);
@@ -85,6 +96,9 @@ public class LoginService {
 			if (dbObj == null) {
 				collection.insertOne(doc);
 				mongoDatabase.createCollection(userId);
+				Document index = new Document("fieldId", 1);
+				collection = mongoDatabase.getCollection(userId);
+				collection.createIndex(index, new IndexOptions().unique(true));
 				createdUser = true;
 			} else {
 				throw new Exception(
@@ -97,3 +111,5 @@ public class LoginService {
 		}
 	}
 }
+// U2FsdGVkX19qto7HxnXpVXJCmOh2iKqG/C6cAOUpEYbMVV7UcyNoEvKA78FHg18G
+// U2FsdGVkX19qto7HxnXpVXJCmOh2iKqG/C6cAOUpEYbMVV7UcyNoEvKA78FHg18G

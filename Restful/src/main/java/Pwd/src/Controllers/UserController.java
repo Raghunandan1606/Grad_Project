@@ -41,19 +41,27 @@ public class UserController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getFields(@HeaderParam(Constants_PWD.jwtToken) String jwtToken,
-			@PathParam(Constants_PWD.userId) String userId) {
+			@PathParam(Constants_PWD.userId) String userId, @HeaderParam("type") String requestType) {
 		System.out.println("Reached in GetFields");
 		System.out.println("JWT:" + jwtToken);
 		if (JWTAuthenticateService.validateJWT(jwtToken, userId)) {
 			System.out.println(userId);
-			List<Field> userFields = userService.getAllFields(userId);
-			// GenericEntity<List<Field>> entity = new
-			// GenericEntity<List<Field>>(userFields) {
-			// };
-			Gson gson = new Gson();
-			String jsonCartList = gson.toJson(userFields);
-			System.out.println(jsonCartList);
-			Response response = Response.ok(jsonCartList).build();
+			Response response = null;
+			if (requestType.equals("all")) {
+				System.out.println("REQUESTING ALL FIELD DATA");
+				List<Field> userFields = userService.getAllFields(userId);
+				Gson gson = new Gson();
+				String jsonCartList = gson.toJson(userFields);
+				System.out.println(jsonCartList);
+				response = Response.ok(jsonCartList).build();
+			} else if (requestType.equals("fieldId")) {
+				System.out.println("REQUESTING ALL FieldID's DATA");
+				List<String> fieldIDs = userService.getFieldIds(userId);
+				Gson gson = new Gson();
+				String jsonCartList = gson.toJson(fieldIDs);
+				System.out.println(jsonCartList);
+				response = Response.ok(jsonCartList).build();
+			}
 			return response;// Response.status(200).entity(userFields).build();
 		} else {
 			return Response.status(400).build();
@@ -95,22 +103,27 @@ public class UserController {
 	@Path("/{userId}/modifyField")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response modifyField(@HeaderParam(Constants_PWD.jwtToken) String jwtToken,
-			@PathParam(Constants_PWD.userId) String userId, String userField) throws Exception {
+			@PathParam(Constants_PWD.userId) String userId, String userFieldString) throws Exception {
 		Response response = null;
 		try {
 			System.out.println("--------In Modify Field--------");
 			System.out.println("JWT:" + jwtToken);
 			System.out.println("userId:" + userId);
-			System.out.println("Body:" + userField);
-			// if (JWTAuthenticateService.validateJWT(jwtToken, userId)) {
-			// List<Field> userFields = userService.modifyField(userId, userField);
-			// GenericEntity<List<Field>> entity = new
-			// GenericEntity<List<Field>>(userFields) {
-			// };
-			// response = Response.ok(entity).build();
-
+			System.out.println("Body:" + userFieldString);
+			Field userField = new Field();
+			JSONObject jsonObject = new JSONObject(userFieldString);
+			userField.setFieldId(jsonObject.get("fieldId").toString());
+			// userField.setFieldName(jsonObject.get("fieldName").toString());
+			userField.setFieldDecrypted(jsonObject.get("passwordDecrypted").toString());
+			if (JWTAuthenticateService.validateJWT(jwtToken, userId)) {
+				List<Field> userFields = userService.modifyField(userId, userField);
+				Gson gson = new Gson();
+				String jsonUserFields = gson.toJson(userFields);
+				response = Response.ok(jsonUserFields).build();
+			} else {
+				response = Response.status(Status.UNAUTHORIZED).build();
+			}
 			return response;
 			// } else {
 			// return Response.status(400).build();
@@ -119,19 +132,23 @@ public class UserController {
 			response = Response.status(Status.BAD_REQUEST).build();
 			return response;
 		}
-
 	}
 
 	@Path("/{userId}/deleteField")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public boolean deleteField(@HeaderParam(Constants_PWD.jwtToken) String jwtToken,
-			@PathParam(Constants_PWD.userId) String userId, String userField) {
+	public Response deleteField(@HeaderParam(Constants_PWD.jwtToken) String jwtToken,
+			@PathParam(Constants_PWD.userId) String userId, String fieldId) {
 		System.out.println("--------In Delete Field--------");
 		System.out.println("JWT:" + jwtToken);
 		System.out.println("userId:" + userId);
-		System.out.println("Body:" + userField);
-		return true;//userService.deleteField(userId, userField);
+		fieldId = fieldId.substring(1, fieldId.length() - 1);
+		System.out.println("Body:" + fieldId);
+		if (userService.deleteField(userId, fieldId))
+			return Response.status(Status.ACCEPTED).build();// userService.deleteField(userId, fieldId);
+		else {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
 	}
 }

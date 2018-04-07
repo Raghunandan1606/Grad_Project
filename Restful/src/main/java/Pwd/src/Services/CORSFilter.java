@@ -21,6 +21,7 @@ public class CORSFilter implements ContainerResponseFilter {
 		cres.getHeaders().add("field", "*");
 		cres.getHeaders().add("jwtToken", "*");
 		cres.getHeaders().add("userId", "*");
+		cres.getHeaders().add("type", "*");
 		// GET, POST, PUT, DELETE, OPTIONS, HEAD
 	}
 

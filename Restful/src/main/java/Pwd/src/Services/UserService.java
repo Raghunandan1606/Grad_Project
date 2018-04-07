@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
@@ -12,6 +13,9 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 
 import Pwd.src.Cryptographic_Functions.AES;
 import Pwd.src.DBConnect.Constants_PWD;
@@ -54,6 +58,26 @@ public class UserService {
 
 	}
 
+	public List<String> getFieldIds(String userId) {
+		MongoCollection<Document> collection = mongoDatabase.getCollection(userId);
+		List<String> fieldIds = new ArrayList<String>();
+		MongoCursor<Document> cursor = collection.find().iterator();
+		try {
+			while (cursor.hasNext()) {
+				Document document = cursor.next();
+				String fieldId;
+				fieldId = document.getString(Constants_PWD.fieldId);
+				fieldIds.add(fieldId);
+			}
+			return fieldIds;
+		} catch (Exception ex) {
+			System.out.println("Exception in GetFields -> userService." + ex.toString());
+			return null;
+		} finally {
+			// mongoDBConnect.CloseDB();
+		}
+	}
+
 	public boolean addField(String userId, Field userField) throws Exception {
 
 		try {
@@ -86,7 +110,6 @@ public class UserService {
 		try {
 			MongoCollection<Document> collection = mongoDatabase.getCollection(userId);
 			BasicDBObject fields = new BasicDBObject();
-			BasicDBObject allQuery = new BasicDBObject();
 			System.out.println(userField.getFieldId());
 			fields.put(Constants_PWD.fieldId, userField.getFieldId());
 			FindIterable<Document> document = collection.find(fields);
@@ -97,7 +120,8 @@ public class UserService {
 				String newEncryptedString = AES.encrypt(userField.getFieldDecrypted(), secretKey);
 				BasicDBObject update = new BasicDBObject();
 				update.append("$set", new BasicDBObject().append(Constants_PWD.fieldEncrypted, newEncryptedString));
-				collection.updateOne(fields, update);
+				UpdateResult updateResult=collection.updateOne(fields, update);
+				System.out.println("Modified count is "+updateResult.getModifiedCount());
 			}
 			return getAllFields(userId);
 		} catch (Exception ex) {
@@ -106,17 +130,23 @@ public class UserService {
 		return getAllFields(userId);
 	}
 
-	public boolean deleteField(String userId, Field userField) {
+	public boolean deleteField(String userId, String fieldId) {
 		try {
 			MongoCollection<Document> collection = mongoDatabase.getCollection(userId);
-			BasicDBObject filter = new BasicDBObject();
-			filter.put(Constants_PWD.fieldId, userField.getFieldId());
-			collection.deleteOne(filter);
-			System.out.println("Deleted as directed");
+			BasicDBObject document = new BasicDBObject();
+			document.put("number", 2);
+			Bson filters = Filters.eq(Constants_PWD.fieldId, fieldId);
+			DeleteResult deleteResult = collection.deleteOne(Filters.eq("fieldId", fieldId));
+			if (deleteResult.getDeletedCount() > 0) {
+				System.out.println(deleteResult.getDeletedCount());
+				return true;
+			} else {
+				return false;
+			}
 		} catch (Exception ex) {
 			System.out.println(ex.toString());
+			return false;
 		}
-		return false;
 	}
 
 }

@@ -49,9 +49,10 @@ public class LoginController {
 	@Path("/loginUser")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response loginUser(@HeaderParam(Constants_PWD.userInput) String userId) {
-		System.out.println("In Login User:" + userId);
-		String responseUserId = loginService.userAuthenticate(userId);
+	public Response loginUser(@HeaderParam(Constants_PWD.userInput) String userInput) {
+		System.out.println("In Login User:" + userInput);
+		String responseUserId = loginService.userAuthenticate(userInput);
+		System.out.println();
 		if (responseUserId != "false") {
 			//System.out.println("Response is " + responseUserId);
 			String jsonResponse = new JSONObject().put("JWTToken", jwtUser(responseUserId)).toString();

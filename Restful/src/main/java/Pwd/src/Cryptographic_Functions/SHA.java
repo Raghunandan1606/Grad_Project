@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class SHA {
-	public static String getEncryptedPassword(String clearTextPassword) {
+	public static String getHashedPassword(String clearTextPassword) {
 
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -17,6 +17,6 @@ public class SHA {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(getEncryptedPassword("The quick brown fox jumps over the lazy dog"));
+		System.out.println(getHashedPassword("highjack@1"));
 	}
 }
