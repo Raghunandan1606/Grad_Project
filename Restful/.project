@@ -34,4 +34,11 @@
 		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
 		<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>Angular_UI</name>
+			<type>2</type>
+			<location>C:/Users/Raghunandan Gardas/Desktop/Angular_Practice/HelloWorld</location>
+		</link>
+	</linkedResources>
 </projectDescription>
